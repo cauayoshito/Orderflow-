@@ -1,0 +1,21 @@
+# OS / editor
+.DS_Store
+*.log
+.idea/
+.vscode/
+*.iml
+
+# Env files (never commit secrets)
+.env
+.env.local
+.env.*.local
+
+# Backend (Maven)
+backend/target/
+
+# Frontend (Next.js / Node)
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.turbo/
+node_modules/

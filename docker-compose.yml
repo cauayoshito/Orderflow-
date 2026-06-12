@@ -1,0 +1,68 @@
+# OrderFlow Commerce Cloud — full stack: PostgreSQL + Spring Boot API + Next.js.
+#
+#   docker compose up --build
+#
+# Then open http://localhost:3000 (frontend) and http://localhost:8080/swagger-ui.html (API docs).
+# Set ANTHROPIC_API_KEY in your shell (or a .env file) to enable the AI features.
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: orderflow_db
+      POSTGRES_USER: orderflow
+      POSTGRES_PASSWORD: orderflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orderflow -d orderflow_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/orderflow_db
+      SPRING_DATASOURCE_USERNAME: orderflow
+      SPRING_DATASOURCE_PASSWORD: orderflow
+      JWT_SECRET: ${JWT_SECRET:-orderflow-commerce-cloud-dev-secret-change-me-please-0123456789}
+      APP_CORS_ALLOWED_ORIGINS: http://localhost:3000
+      # Optional: enables the AI module. Without it, AI endpoints return 503.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-opus-4-8}
+      # Optional: enables Stripe payments. Without the secret key, create-intent returns 503.
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Baked into the browser bundle, so they must be reachable from the browser
+        # (the WebSocket connects from the user's browser, hence localhost, not the
+        # internal "backend" service hostname).
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+        NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-}
+        NEXT_PUBLIC_WS_URL: ws://localhost:8080/ws
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    environment:
+      # Runtime env for the email Route Handlers (server-side).
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-onboarding@resend.dev}
+      INTERNAL_API_SECRET: ${INTERNAL_API_SECRET:-}
+
+volumes:
+  postgres-data:

@@ -1,0 +1,40 @@
+spring:
+  # Tests run against an in-memory H2 database in PostgreSQL-compatibility mode,
+  # so no real PostgreSQL is required to build or run the suite.
+  datasource:
+    url: jdbc:h2:mem:orderflow;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  sql:
+    init:
+      mode: never
+
+jwt:
+  secret: test-secret-test-secret-test-secret-0123456789
+  expiration: 86400000
+  refreshExpiration: 604800000
+
+app:
+  cors:
+    allowed-origins: http://localhost:3000
+  inventory:
+    low-stock-threshold: 5
+
+anthropic:
+  api-key:
+  model: claude-opus-4-8
+
+stripe:
+  secret-key: sk_test_dummy
+  publishable-key: pk_test_dummy
+  webhook-secret: whsec_test_dummy
+
+websocket:
+  allowed-origin: http://localhost:3000

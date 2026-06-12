@@ -1,0 +1,69 @@
+spring:
+  application:
+    name: orderflow-api
+  # DataSource configuration for PostgreSQL.  These values are overridden when
+  # running via Docker Compose using environment variables.  During local
+  # development you can change the URL, username and password to match your
+  # local database instance.
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/orderflow_db}
+    username: ${SPRING_DATASOURCE_USERNAME:orderflow}
+    password: ${SPRING_DATASOURCE_PASSWORD:orderflow}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+# JWT configuration.  The secret and token validity are provided here for
+# convenience, but for production deployments you MUST override the secret via
+# the JWT_SECRET environment variable.  The default below is long enough for
+# HS256 (>= 32 bytes) but is public knowledge — never ship it as-is.
+jwt:
+  secret: ${JWT_SECRET:orderflow-commerce-cloud-dev-secret-change-me-please-0123456789}
+  expiration: 86400000          # access token: 24 hours (ms)
+  refreshExpiration: ${JWT_REFRESHEXPIRATION:604800000} # refresh token: 7 days (ms)
+
+# Application-specific settings.
+app:
+  cors:
+    # Comma-separated list of origins allowed to call the API from the browser.
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000}
+  inventory:
+    # Products at or below this stock level appear in the low-stock widget.
+    low-stock-threshold: ${APP_LOW_STOCK_THRESHOLD:5}
+
+# Anthropic / Claude API settings for the AI module.  The API key is read from
+# ANTHROPIC_API_KEY by default; without it the AI endpoints return 503.
+anthropic:
+  api-key: ${ANTHROPIC_API_KEY:}
+  model: ${ANTHROPIC_MODEL:claude-opus-4-8}
+
+# Stripe payment settings.  Read from the STRIPE_* environment variables.
+# Without a secret key, /api/payment/create-intent returns 503.
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY:}
+  publishable-key: ${STRIPE_PUBLISHABLE_KEY:}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
+
+# WebSocket (STOMP) allowed browser origin for the SockJS handshake.
+websocket:
+  allowed-origin: ${NEXT_PUBLIC_APP_URL:http://localhost:3000}
+
+# Expose a minimal health endpoint for Docker / load-balancer checks.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+# SpringDoc/OpenAPI configuration — Swagger UI at /swagger-ui.html.
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
