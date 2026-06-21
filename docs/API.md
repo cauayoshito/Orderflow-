@@ -166,6 +166,54 @@ Análise das vendas recentes (queda, tendência e destaques) → `{ "result": ".
 ### GET `/api/admin/ai/low-stock-suggestions`
 Alertas de estoque baixo e produtos sem giro → `{ "result": "...", "model": "..." }`
 
-> A engine também expõe endpoints próprios em `http://localhost:8000`
+### Analytics estruturados
+
+Endpoints que retornam o **payload completo** da engine (objetos, não texto):
+
+#### GET `/api/admin/ai/insights`
+Painel consolidado (vendas + estoque + clientes) com insights acionáveis.
+```json
+{
+  "insights": [ { "type": "sales", "severity": "critical", "title": "...", "message": "..." } ],
+  "headline": "...",
+  "recurring_customers": [ { "customer_id": 1, "name": "Ana", "orders": 3, "total_spent": 540.0 } ],
+  "engine": "orderflow-intelligence-v1"
+}
+```
+
+#### GET `/api/admin/ai/dashboard-summary`
+KPIs do negócio.
+```json
+{
+  "total_sales": 2515.8, "total_orders": 14, "valid_orders": 14, "canceled_orders": 0,
+  "average_ticket": 179.7, "low_stock_count": 2,
+  "orders_by_status": [ { "status": "PAID", "count": 14 } ]
+}
+```
+
+#### GET `/api/admin/ai/stock-alerts`
+Alertas de estoque (com reposição sugerida) e produtos sem giro — versão estruturada.
+```json
+{
+  "alerts": [ { "product_id": 1, "name": "Camiseta", "stock_quantity": 3, "severity": "low",
+                "daily_velocity": 1.4, "days_of_cover": 2.1, "suggested_restock": 7 } ],
+  "no_turnover": [ { "product_id": 3, "name": "Caneca", "stock_quantity": 200, "days_without_sales": null } ]
+}
+```
+
+#### GET `/api/admin/ai/sales-analysis?windowDays=7`
+Ranking, ticket médio, detecção de queda e horários de pico.
+```json
+{
+  "window_days": 7, "change_pct": -0.77, "trend": "down", "sales_drop_detected": true,
+  "average_ticket": 179.7,
+  "top_products": [ { "product_id": 1, "name": "Camiseta", "units_sold": 42, "revenue": 2515.8 } ],
+  "peak_hours": [ { "hour": 16, "orders": 7 } ],
+  "peak_weekdays": [ { "weekday": "segunda-feira", "orders": 2 } ],
+  "narrative": "..."
+}
+```
+
+> A engine também expõe os mesmos endpoints diretamente em `http://localhost:8000`
 > (`/insights`, `/dashboard-summary`, `/stock-alerts`, `/sales-analysis`) —
 > veja `ai-engine/README.md`.

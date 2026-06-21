@@ -8,7 +8,12 @@ import jakarta.persistence.*;
  * protects against later price changes in the product table.
  */
 @Entity
-@Table(name = "order_items")
+@Table(name = "order_items", indexes = {
+        // Support per-product aggregations (top products, restock velocity)
+        // and the order join used across the analytics queries.
+        @Index(name = "idx_order_items_product", columnList = "product_id"),
+        @Index(name = "idx_order_items_order", columnList = "order_id")
+})
 public class OrderItem {
 
     @Id

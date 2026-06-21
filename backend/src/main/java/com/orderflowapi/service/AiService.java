@@ -59,6 +59,28 @@ public class AiService {
         return requireText(response, "narrative");
     }
 
+    // ----- Structured analytics (full engine payloads) ---------------------
+
+    /** Consolidated admin insights (sales + inventory + customers). */
+    public Map<String, Object> getInsights() {
+        return get("/insights");
+    }
+
+    /** Business KPIs: sales, orders, average ticket, low-stock count. */
+    public Map<String, Object> getDashboardSummary() {
+        return get("/dashboard-summary");
+    }
+
+    /** Low-stock alerts (with restock suggestions) and no-turnover products. */
+    public Map<String, Object> getStockAlerts() {
+        return get("/stock-alerts");
+    }
+
+    /** Sales analysis: ranking, average ticket, drop detection, peak hours. */
+    public Map<String, Object> getSalesAnalysis(int windowDays) {
+        return get("/sales-analysis?window_days=" + windowDays);
+    }
+
     // ----- Internals -------------------------------------------------------
 
     @SuppressWarnings("unchecked")

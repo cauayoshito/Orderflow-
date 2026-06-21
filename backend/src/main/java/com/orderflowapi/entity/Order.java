@@ -12,7 +12,12 @@ import java.util.List;
  * order items but can also be stored separately if needed.
  */
 @Entity
-@Table(name = "orders")
+@Table(name = "orders", indexes = {
+        // Speed up the date-range and status aggregations used by the
+        // OrderFlow Intelligence analytics (sales trend, dashboard, peaks).
+        @Index(name = "idx_orders_order_date", columnList = "orderDate"),
+        @Index(name = "idx_orders_status", columnList = "status")
+})
 public class Order {
 
     @Id
