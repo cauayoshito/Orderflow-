@@ -158,6 +158,64 @@ export interface StockAlertsResponse {
   engine: string;
 }
 
+// ----- Growth / marketing -----
+
+export interface LeadInput {
+  name: string;
+  email: string;
+  phone?: string;
+  source?: string;
+  planInterest?: string;
+  referredByCode?: string;
+}
+
+export interface LeadResponse {
+  id: number;
+  name: string;
+  email: string;
+  source: string | null;
+  planInterest: string | null;
+  referralCode: string;
+  referredByCode: string | null;
+  status: string;
+  createdAt: string;
+}
+
+export interface CouponValidation {
+  valid: boolean;
+  code: string;
+  discount: number;
+  finalAmount: number;
+  message: string;
+}
+
+export interface Coupon {
+  id: number;
+  code: string;
+  type: "PERCENT" | "FIXED";
+  value: number;
+  active: boolean;
+  minOrderAmount: number | null;
+  maxRedemptions: number | null;
+  timesRedeemed: number;
+  expiresAt: string | null;
+}
+
+export interface ReferrerCount {
+  code: string;
+  count: number;
+}
+
+export interface GrowthMetrics {
+  totalLeads: number;
+  convertedLeads: number;
+  conversionRate: number;
+  referredLeads: number;
+  leadsByStatus: Record<string, number>;
+  leadsBySource: Record<string, number>;
+  topReferrers: ReferrerCount[];
+}
+
 export interface AuthUser {
   id: number;
   username: string;

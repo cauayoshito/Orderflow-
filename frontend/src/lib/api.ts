@@ -7,8 +7,13 @@ import type {
   AiTextResponse,
   AuthResponse,
   AuthUser,
+  Coupon,
+  CouponValidation,
   DashboardData,
+  GrowthMetrics,
   InsightsResponse,
+  LeadInput,
+  LeadResponse,
   Order,
   OrderStatus,
   PaymentIntentResponse,
@@ -167,6 +172,30 @@ export const api = {
   aiSalesAnalysis: (windowDays = 7) =>
     request<SalesAnalysisResponse>(`/api/admin/ai/sales-analysis?windowDays=${windowDays}`),
   aiStockAlerts: () => request<StockAlertsResponse>("/api/admin/ai/stock-alerts"),
+
+  // ----- Growth: public lead capture & coupon validation (no auth) -----
+  createLead: (input: LeadInput) =>
+    request<LeadResponse>("/api/public/leads", { method: "POST", body: input, auth: false }),
+  validateCoupon: (code: string, amount = 0) =>
+    request<CouponValidation>(
+      `/api/public/coupons/validate?code=${encodeURIComponent(code)}&amount=${amount}`,
+      { auth: false },
+    ),
+
+  // ----- Admin: growth dashboard, leads & coupons -----
+  growthMetrics: () => request<GrowthMetrics>("/api/admin/leads/metrics"),
+  leads: () => request<LeadResponse[]>("/api/admin/leads"),
+  coupons: () => request<Coupon[]>("/api/admin/coupons"),
+  createCoupon: (body: {
+    code: string;
+    type: "PERCENT" | "FIXED";
+    value: number;
+    active?: boolean;
+    minOrderAmount?: number;
+    maxRedemptions?: number;
+  }) => request<Coupon>("/api/admin/coupons", { method: "POST", body }),
+  deleteCoupon: (id: number) =>
+    request<void>(`/api/admin/coupons/${id}`, { method: "DELETE" }),
 };
 
 export function formatCurrency(value: number): string {

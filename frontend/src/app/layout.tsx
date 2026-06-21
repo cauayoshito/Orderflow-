@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { Navbar } from "@/components/Navbar";
+import { Analytics } from "@/components/Analytics";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const sora = Sora({ subsets: ["latin"], weight: ["600", "700"], variable: "--font-sora" });
@@ -17,6 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR" className={`${inter.variable} ${sora.variable}`}>
       <body className="font-sans">
+        <Analytics />
         <AuthProvider>
           <CartProvider>
             <Navbar />
@@ -34,6 +36,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     </p>
                   </div>
                   <div className="flex flex-col gap-2 text-sm sm:items-end">
+                    <a href="/lp" className="hover:text-white">Por que OrderFlow</a>
+                    <a href="/pricing" className="hover:text-white">Planos e preços</a>
+                    <a href="/demo" className="hover:text-white">Demonstração</a>
+                    <a href="/indique" className="hover:text-white">Indique e ganhe</a>
                     <a
                       href="https://github.com/cauayoshito/aceba"
                       target="_blank"
@@ -41,14 +47,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                       className="hover:text-white"
                     >
                       GitHub
-                    </a>
-                    <a
-                      href="http://localhost:8080/swagger-ui.html"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="hover:text-white"
-                    >
-                      Swagger Docs
                     </a>
                   </div>
                 </div>

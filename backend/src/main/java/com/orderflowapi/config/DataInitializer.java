@@ -1,8 +1,11 @@
 package com.orderflowapi.config;
 
+import com.orderflowapi.entity.Coupon;
+import com.orderflowapi.entity.CouponType;
 import com.orderflowapi.entity.Product;
 import com.orderflowapi.entity.Role;
 import com.orderflowapi.entity.User;
+import com.orderflowapi.repository.CouponRepository;
 import com.orderflowapi.repository.ProductRepository;
 import com.orderflowapi.repository.RoleRepository;
 import com.orderflowapi.repository.UserRepository;
@@ -32,6 +35,7 @@ public class DataInitializer {
     CommandLineRunner initData(RoleRepository roleRepository,
                                UserRepository userRepository,
                                ProductRepository productRepository,
+                               CouponRepository couponRepository,
                                PasswordEncoder passwordEncoder) {
         return args -> {
             // Ensure roles exist
@@ -69,6 +73,16 @@ public class DataInitializer {
                         new Product("Garrafa Térmica 500ml", "Mantém a temperatura por até 12 horas.", 79.90, 25),
                         new Product("Biscoitos Artesanais", "Caixa com 12 biscoitos amanteigados.", 19.90, 4)
                 ));
+            }
+
+            // Seed a welcome coupon for the storefront / demo once
+            if (couponRepository.count() == 0) {
+                Coupon welcome = new Coupon();
+                welcome.setCode("BEMVINDO10");
+                welcome.setType(CouponType.PERCENT);
+                welcome.setValue(10.0);
+                welcome.setActive(true);
+                couponRepository.save(welcome);
             }
         };
     }
