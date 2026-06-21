@@ -8,11 +8,14 @@ import type {
   AuthResponse,
   AuthUser,
   DashboardData,
+  InsightsResponse,
   Order,
   OrderStatus,
   PaymentIntentResponse,
   Product,
   ProductInput,
+  SalesAnalysisResponse,
+  StockAlertsResponse,
 } from "./types";
 
 const BASE_URL =
@@ -158,6 +161,12 @@ export const api = {
   aiWeeklySummary: () => request<AiTextResponse>("/api/admin/ai/weekly-summary"),
   aiLowStockSuggestions: () =>
     request<AiTextResponse>("/api/admin/ai/low-stock-suggestions"),
+
+  // ----- Admin: OrderFlow Intelligence (structured analytics) -----
+  aiInsights: () => request<InsightsResponse>("/api/admin/ai/insights"),
+  aiSalesAnalysis: (windowDays = 7) =>
+    request<SalesAnalysisResponse>(`/api/admin/ai/sales-analysis?windowDays=${windowDays}`),
+  aiStockAlerts: () => request<StockAlertsResponse>("/api/admin/ai/stock-alerts"),
 };
 
 export function formatCurrency(value: number): string {
