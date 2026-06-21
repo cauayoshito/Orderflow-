@@ -29,8 +29,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                       OrderFlow Commerce Cloud
                     </p>
                     <p className="mt-2 text-sm">
-                      Commerce em tempo real, potencializado por IA — Spring Boot, Next.js e
-                      Claude API.
+                      Commerce em tempo real, potencializado por IA própria — Spring Boot,
+                      Next.js e OrderFlow Intelligence (Python).
                     </p>
                   </div>
                   <div className="flex flex-col gap-2 text-sm sm:items-end">

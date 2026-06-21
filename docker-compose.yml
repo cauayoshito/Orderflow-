@@ -3,7 +3,8 @@
 #   docker compose up --build
 #
 # Then open http://localhost:3000 (frontend) and http://localhost:8080/swagger-ui.html (API docs).
-# Set ANTHROPIC_API_KEY in your shell (or a .env file) to enable the AI features.
+# The AI features are powered by the bundled OrderFlow Intelligence service
+# (Python/FastAPI) — no external AI API or key required.
 
 services:
   postgres:

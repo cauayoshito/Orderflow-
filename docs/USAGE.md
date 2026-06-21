@@ -13,7 +13,7 @@ docker compose up --build
 - Loja: <http://localhost:3000>
 - API/Swagger: <http://localhost:8080/swagger-ui.html>
 
-Para habilitar a IA, exporte `ANTHROPIC_API_KEY` antes de subir (veja o README).
+A IA (OrderFlow Intelligence) sobe junto com a stack — não precisa de chave nem de API externa.
 
 ---
 
@@ -46,7 +46,7 @@ Faça login com `admin` / `admin123` e acesse **Admin** no topo.
 
 ### Produtos (`/admin/products`)
 - Criar, editar e remover produtos (nome, descrição, preço, estoque).
-- **✨ Gerar com IA**: preencha o nome e clique para gerar uma descrição com a Claude.
+- **✨ Gerar com IA**: preencha o nome e clique para gerar uma descrição com a OrderFlow Intelligence.
 
 ### Pedidos (`/admin/orders`)
 - Visualizar todos os pedidos.
@@ -63,7 +63,7 @@ Pedidos `DELIVERED` ou `CANCELED` são finais.
 - **Resumir vendas da semana** — resumo em linguagem simples dos últimos 7 dias.
 - **Sugerir ações p/ estoque baixo** — recomendações práticas de reposição/promoção.
 
-> Se a `ANTHROPIC_API_KEY` não estiver configurada, os recursos de IA retornam **503** com uma mensagem explicativa — o restante do app continua funcionando normalmente.
+> A IA é atendida pela **OrderFlow Intelligence** (engine própria em Python, sem API externa). Se a engine estiver indisponível, os recursos de IA retornam **503** com uma mensagem explicativa — o restante do app continua funcionando normalmente.
 
 ---
 
@@ -72,4 +72,4 @@ Pedidos `DELIVERED` ou `CANCELED` são finais.
 1. Logue como `admin`, crie/edite produtos e ajuste o estoque (deixe algum item com ≤ 5 unidades para ver o widget de estoque baixo).
 2. Crie uma conta de cliente, faça um pedido.
 3. Volte ao admin e veja o pedido em "Pedidos recentes" e nos contadores por status; avance o status do pedido.
-4. Com a `ANTHROPIC_API_KEY` configurada, gere uma descrição de produto e o resumo de vendas.
+4. Gere uma descrição de produto e o resumo de vendas — tudo processado localmente pela OrderFlow Intelligence.

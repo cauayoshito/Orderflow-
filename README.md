@@ -11,13 +11,14 @@
 
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?style=flat-square&logo=postgresql&logoColor=white)
 ![Stripe](https://img.shields.io/badge/Stripe-Payments-635BFF?style=flat-square&logo=stripe&logoColor=white)
-![Claude API](https://img.shields.io/badge/Claude%20API-IA-D97757?style=flat-square&logo=anthropic&logoColor=white)
+![Python](https://img.shields.io/badge/Python-FastAPI-3776AB?style=flat-square&logo=python&logoColor=white)
+![OrderFlow Intelligence](https://img.shields.io/badge/OrderFlow%20Intelligence-IA%20pr%C3%B3pria-10B981?style=flat-square)
 ![WebSocket](https://img.shields.io/badge/WebSocket-STOMP-010101?style=flat-square&logo=socketdotio&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white)
 ![Swagger](https://img.shields.io/badge/OpenAPI-Swagger-85EA2D?style=flat-square&logo=swagger&logoColor=black)
 
-*Catálogo, carrinho, checkout com Stripe, painel admin com dashboard, status de pedido em tempo real, e-mails transacionais e módulo de IA com a API da Claude.*
+*Catálogo, carrinho, checkout com Stripe, painel admin com dashboard, status de pedido em tempo real, e-mails transacionais e módulo de IA proprietária (OrderFlow Intelligence) — sem nenhuma API externa.*
 
 [Como rodar](#-como-rodar) · [Arquitetura](#%EF%B8%8F-arquitetura) · [Destaques técnicos](#-destaques-técnicos) · [API](docs/API.md) · [Guia de uso](docs/USAGE.md)
 
@@ -27,7 +28,7 @@
 
 ## 💡 Sobre o projeto
 
-O **OrderFlow Commerce Cloud** é uma plataforma completa de pedidos para pequenos negócios, construída de ponta a ponta como projeto de portfólio: **API REST em Java/Spring Boot**, **frontend em Next.js/TypeScript** e integrações reais de mercado — **Stripe** (pagamentos), **Resend** (e-mails transacionais), **WebSocket** (tempo real) e **API da Claude/Anthropic** (recursos de IA para o lojista).
+O **OrderFlow Commerce Cloud** é uma plataforma completa de pedidos para pequenos negócios, construída de ponta a ponta como projeto de portfólio: **API REST em Java/Spring Boot**, **frontend em Next.js/TypeScript**, uma **engine de IA proprietária em Python/FastAPI** (OrderFlow Intelligence) e integrações reais de mercado — **Stripe** (pagamentos), **Resend** (e-mails transacionais) e **WebSocket** (tempo real).
 
 Tudo sobe com **um único comando** via Docker Compose, com seed automático de dados e usuário admin de demonstração.
 
@@ -41,7 +42,7 @@ O que este projeto demonstra na prática:
 | **Segurança** | Spring Security com **JWT + refresh token**, roles (`ADMIN`/`CUSTOMER`), filtro de autenticação customizado e CORS configurável |
 | **Pagamentos reais** | Fluxo **PaymentIntent + Stripe Elements**, com **webhook assinado** que reconcilia o pagamento e atualiza o pedido para `PAID`/`PAYMENT_FAILED` |
 | **Tempo real** | WebSocket **STOMP/SockJS** com broker de tópicos (`/topic/orders/{id}`); hook React `useOrderStatus` com reconexão automática |
-| **Integração com IA** | Módulo backend que consome a **API da Claude** via `RestClient`: geração de descrição de produto, resumo semanal de vendas e sugestões para estoque baixo |
+| **IA proprietária** | **OrderFlow Intelligence** — microsserviço Python/FastAPI que analisa os dados do próprio negócio (regras + estatística, **sem API externa**): produtos mais vendidos, ticket médio, detecção de queda de vendas, produtos sem giro, sugestão de reposição, horários de pico, clientes recorrentes e geração de descrição de produto. O backend faz proxy via `RestClient` |
 | **Regras de negócio** | Máquina de estados de pedido com transições válidas, controle de estoque na criação do pedido e dashboard de métricas agregadas |
 | **Testes automatizados** | Testes unitários e de integração (MockMvc + H2): pedidos, produtos, pagamentos e configuração de WebSocket |
 | **Frontend moderno** | Next.js 14 (App Router), TypeScript estrito, Tailwind CSS, Context API (auth e carrinho) e Route Handlers para e-mails server-side |
@@ -69,7 +70,7 @@ O que este projeto demonstra na prática:
 - Dashboard: total de vendas, pedidos por status, produtos com estoque baixo e pedidos recentes
 - CRUD de produtos com estoque
 - Gestão de status de pedidos com regras de transição
-- **IA (Claude):** gerar descrição de produto, resumir vendas da semana e sugerir ações para estoque baixo
+- **IA (OrderFlow Intelligence):** gerar descrição de produto, analisar vendas (queda/tendência) e sugerir ações para estoque baixo — sem API externa
 
 ## 🏗️ Arquitetura
 
@@ -77,14 +78,14 @@ O que este projeto demonstra na prática:
 ┌──────────────────────┐      HTTP/JSON (JWT)       ┌──────────────────────────┐
 │   Next.js Frontend   │ ─────────────────────────▶ │   Spring Boot REST API   │
 │  (App Router, TS,    │ ◀───────────────────────── │  (Security + JWT, JPA)   │
-│   Tailwind)          │   WebSocket (STOMP/SockJS) │                          │
-│  :3000               │ ◀╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌ │  ── AI module ──▶ Claude │
-└──────────┬───────────┘                            └────────────┬─────────────┘
-           │ Route Handlers                                      │ JDBC
-           ▼                                             ┌───────▼────────┐
-     Resend (e-mails)          Stripe (webhook) ───────▶ │  PostgreSQL    │
-                                                         │  :5432         │
-                                                         └────────────────┘
+│   Tailwind)          │   WebSocket (STOMP/SockJS) │   AI module ──┐          │
+│  :3000               │ ◀╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌ │  (proxy)      │          │
+└──────────┬───────────┘                            └───────┬───────┼──────────┘
+           │ Route Handlers                            JDBC │       │ HTTP
+           ▼                                        ┌────────▼───┐   ▼
+     Resend (e-mails)     Stripe (webhook) ───────▶ │ PostgreSQL │  OrderFlow Intelligence
+                                                    │  :5432     │◀─ (Python/FastAPI :8000)
+                                                    └────────────┘   lê os dados e gera insights
 ```
 
 | Camada | Tecnologias |
@@ -95,7 +96,7 @@ O que este projeto demonstra na prática:
 | **Pagamentos** | Stripe (stripe-java + Stripe.js / React Elements + webhook) |
 | **Tempo real** | WebSocket STOMP + SockJS (`@stomp/stompjs`) |
 | **E-mail** | Resend (Next.js Route Handlers) |
-| **IA** | API da Claude (Anthropic) via Spring `RestClient` |
+| **IA** | OrderFlow Intelligence — Python 3.12, FastAPI, pandas, NumPy (proxy do backend via Spring `RestClient`); **sem API externa** |
 | **Infra & docs** | Docker Compose (multi-stage builds, healthcheck), OpenAPI/Swagger |
 
 ## 🚀 Como rodar
@@ -103,14 +104,14 @@ O que este projeto demonstra na prática:
 ### Opção A — Docker Compose (recomendado)
 
 ```bash
-# (opcional) habilite o módulo de IA exportando sua chave da Anthropic
-export ANTHROPIC_API_KEY=sk-ant-...
-
 docker compose up --build
 ```
 
+A IA (OrderFlow Intelligence) sobe junto, sem necessidade de chave ou API externa.
+
 - 🛍️ Loja: <http://localhost:3000>
 - 📖 API (Swagger): <http://localhost:8080/swagger-ui.html>
+- 🧠 OrderFlow Intelligence: <http://localhost:8000/docs>
 
 ### Opção B — Manual (desenvolvimento)
 
@@ -120,10 +121,18 @@ docker run --name ofcc-pg -e POSTGRES_DB=orderflow_db -e POSTGRES_USER=orderflow
   -e POSTGRES_PASSWORD=orderflow -p 5432:5432 -d postgres:15
 ```
 
+**Engine de IA (OrderFlow Intelligence):**
+```bash
+cd ai-engine
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --port 8000   # http://localhost:8000/docs
+```
+
 **Backend:**
 ```bash
 cd backend
-export ANTHROPIC_API_KEY=sk-ant-...   # opcional, habilita a IA
+export AI_ENGINE_URL=http://localhost:8000   # padrão; aponta para a engine de IA
 mvn spring-boot:run
 ```
 
@@ -159,12 +168,11 @@ npm run build   # compila e valida os tipos (tsc strict)
 
 ## ⚙️ Variáveis de ambiente
 
-Todas as integrações externas são **opcionais** e degradam graciosamente: sem a chave correspondente, o endpoint responde 503 (Stripe/IA) ou o envio é pulado com log (e-mails) — e o restante do app continua funcionando.
+As integrações externas (Stripe, Resend) são **opcionais** e degradam graciosamente: sem a chave correspondente, o endpoint responde 503 ou o envio é pulado com log — e o restante do app continua funcionando. A IA roda localmente (OrderFlow Intelligence) e só responde 503 se a engine estiver fora do ar.
 
 | Variável | Onde | Padrão | Descrição |
 |----------|------|--------|-----------|
-| `ANTHROPIC_API_KEY` | backend | — | Habilita o módulo de IA |
-| `ANTHROPIC_MODEL` | backend | `claude-opus-4-8` | Modelo da Claude usado nas features de IA |
+| `AI_ENGINE_URL` | backend | `http://localhost:8000` | URL da OrderFlow Intelligence (o backend faz proxy) |
 | `STRIPE_SECRET_KEY` | backend | — | Habilita pagamentos |
 | `STRIPE_WEBHOOK_SECRET` | backend | — | Valida a assinatura do webhook Stripe |
 | `STRIPE_PUBLISHABLE_KEY` | backend/frontend | — | Chave pública do Stripe |

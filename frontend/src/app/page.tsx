@@ -11,7 +11,7 @@ const STACK = [
   "Next.js 14",
   "PostgreSQL",
   "Stripe",
-  "Claude API",
+  "Python / FastAPI",
   "WebSocket",
 ];
 
@@ -33,14 +33,14 @@ export default function CatalogPage() {
       <section className="rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 px-6 py-20 sm:px-12 sm:py-28">
         <div className="mx-auto max-w-3xl">
           <span className="inline-flex items-center rounded-full border border-indigo-500/20 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-300">
-            Projeto Full Stack — Spring Boot · Next.js · Claude API
+            Projeto Full Stack — Spring Boot · Next.js · IA própria (Python)
           </span>
           <h1 className="font-display mt-6 whitespace-pre-line text-4xl font-bold leading-tight text-white sm:text-5xl">
             {"Commerce em tempo real,\npotencializado por IA"}
           </h1>
           <p className="mt-4 max-w-xl text-lg text-slate-400">
-            Catálogo, carrinho, checkout Stripe, rastreamento WebSocket e insights Claude API —
-            tudo conectado.
+            Catálogo, carrinho, checkout Stripe, rastreamento WebSocket e insights da
+            OrderFlow Intelligence — tudo conectado.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <a href="#catalog" className="btn-primary">

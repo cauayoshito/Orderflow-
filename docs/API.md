@@ -148,18 +148,24 @@ Transições válidas: `PENDING→CONFIRMED→PROCESSING→SHIPPED→DELIVERED`,
 }
 ```
 
-## Admin — IA (Claude)
+## Admin — IA (OrderFlow Intelligence)
 
-Requer `ANTHROPIC_API_KEY` no backend; caso contrário retorna `503`.
+Funções de IA atendidas pela **OrderFlow Intelligence** — engine proprietária em
+Python/FastAPI que analisa os dados do próprio negócio, **sem nenhuma API externa**.
+O backend faz proxy para a engine; se ela estiver indisponível, retorna `503`.
 
 ### POST `/api/admin/ai/product-description`
 ```json
 { "name": "Caneca de cerâmica", "category": "Casa", "keywords": "handmade, presente" }
 ```
-→ `{ "result": "texto gerado...", "model": "claude-opus-4-8" }`
+→ `{ "result": "texto gerado...", "model": "orderflow-intelligence-v1" }`
 
 ### GET `/api/admin/ai/weekly-summary`
-Resumo das vendas dos últimos 7 dias → `{ "result": "...", "model": "..." }`
+Análise das vendas recentes (queda, tendência e destaques) → `{ "result": "...", "model": "..." }`
 
 ### GET `/api/admin/ai/low-stock-suggestions`
-Sugestões de ação para produtos com estoque baixo → `{ "result": "...", "model": "..." }`
+Alertas de estoque baixo e produtos sem giro → `{ "result": "...", "model": "..." }`
+
+> A engine também expõe endpoints próprios em `http://localhost:8000`
+> (`/insights`, `/dashboard-summary`, `/stock-alerts`, `/sales-analysis`) —
+> veja `ai-engine/README.md`.

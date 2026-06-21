@@ -151,7 +151,7 @@ function AiInsights() {
     <section className="rounded-xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white p-6 shadow-sm">
       <div className="mb-1 flex items-center gap-2">
         <span className="text-xl">🤖</span>
-        <h2 className="text-lg font-semibold">Insights de IA (Claude)</h2>
+        <h2 className="text-lg font-semibold">Insights de IA (OrderFlow Intelligence)</h2>
       </div>
       <p className="mb-4 text-sm text-slate-500">
         Gere um resumo das vendas da semana e sugestões de ações para produtos com estoque baixo.
