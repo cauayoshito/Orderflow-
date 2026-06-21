@@ -5,7 +5,7 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
-from app.services import customer_service, inventory_service, sales_service
+from app.services import content_service, customer_service, inventory_service, sales_service
 
 
 def make_lines(rows: list[dict]) -> pd.DataFrame:
@@ -152,6 +152,21 @@ def test_empty_data_is_safe():
     assert customer_service.recurring_customers(empty, empty) == []
     drop = sales_service.detect_sales_drop(empty)
     assert drop["sales_drop_detected"] is False
+
+
+# ----- Conteúdo (descrição de produto) -----------------------------------
+def test_product_description_is_deterministic_and_uses_inputs():
+    d1 = content_service.generate_product_description("Camiseta Premium", "Roupas", "algodão, confortável")
+    d2 = content_service.generate_product_description("Camiseta Premium", "Roupas", "algodão, confortável")
+    assert d1 == d2                       # determinístico
+    assert "Camiseta Premium" in d1       # usa o nome
+    assert "algodão" in d1                # incorpora palavras-chave
+    assert len(d1) > 20
+
+
+def test_product_description_requires_name():
+    with pytest.raises(ValueError):
+        content_service.generate_product_description("")
 
 
 if __name__ == "__main__":

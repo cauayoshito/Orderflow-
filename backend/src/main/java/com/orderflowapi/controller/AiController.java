@@ -9,7 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Admin-only AI endpoints backed by the Claude API.  Secured to ADMIN via the
+ * Admin-only AI endpoints backed by the OrderFlow Intelligence engine (a
+ * proprietary Python service — no external AI API).  Secured to ADMIN via the
  * {@code /api/admin/**} rule in {@link com.orderflowapi.security.SecurityConfig}.
  */
 @RestController
@@ -18,7 +19,7 @@ public class AiController {
 
     private final AiService aiService;
 
-    @Value("${anthropic.model:claude-opus-4-8}")
+    @Value("${ai.engine.model:orderflow-intelligence-v1}")
     private String model;
 
     public AiController(AiService aiService) {

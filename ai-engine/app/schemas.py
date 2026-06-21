@@ -104,3 +104,15 @@ class InsightsResponse(BaseModel):
     recurring_customers: list[RecurringCustomer]
     generated_at: str
     engine: str = "orderflow-intelligence-v1"
+
+
+# ----- Geração de conteúdo (descrição de produto) ------------------------
+class ProductDescriptionRequest(BaseModel):
+    name: str
+    category: str | None = None
+    keywords: str | None = None
+
+
+class ProductDescriptionResponse(BaseModel):
+    description: str
+    engine: str = "orderflow-intelligence-v1"

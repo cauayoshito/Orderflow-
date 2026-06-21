@@ -16,10 +16,12 @@ from ..config import Settings, get_settings
 from ..schemas import (
     DashboardSummaryResponse,
     InsightsResponse,
+    ProductDescriptionRequest,
+    ProductDescriptionResponse,
     SalesAnalysisResponse,
     StockAlertsResponse,
 )
-from ..services import insights_service
+from ..services import content_service, insights_service
 
 router = APIRouter()
 
@@ -60,3 +62,13 @@ def sales_analysis(
 ) -> SalesAnalysisResponse:
     """Análise de vendas: ranking, ticket médio, queda e horários de pico."""
     return SalesAnalysisResponse(**_guard(insights_service.build_sales_analysis, settings, window_days))
+
+
+@router.post("/product-description", response_model=ProductDescriptionResponse, tags=["content"])
+def product_description(req: ProductDescriptionRequest) -> ProductDescriptionResponse:
+    """Gera uma descrição de marketing para um produto (NLG por template)."""
+    try:
+        text = content_service.generate_product_description(req.name, req.category, req.keywords)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return ProductDescriptionResponse(description=text)

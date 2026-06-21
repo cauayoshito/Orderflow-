@@ -27,6 +27,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      ai-engine:
+        condition: service_started
     ports:
       - "8080:8080"
     environment:
@@ -35,9 +37,9 @@ services:
       SPRING_DATASOURCE_PASSWORD: orderflow
       JWT_SECRET: ${JWT_SECRET:-orderflow-commerce-cloud-dev-secret-change-me-please-0123456789}
       APP_CORS_ALLOWED_ORIGINS: http://localhost:3000
-      # Optional: enables the AI module. Without it, AI endpoints return 503.
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-opus-4-8}
+      # AI module: the backend proxies admin AI endpoints to the OrderFlow
+      # Intelligence engine. If unreachable, those endpoints return 503.
+      AI_ENGINE_URL: http://ai-engine:8000
       # Optional: enables Stripe payments. Without the secret key, create-intent returns 503.
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
       STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-}

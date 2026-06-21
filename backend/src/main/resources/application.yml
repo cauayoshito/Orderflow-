@@ -37,11 +37,13 @@ app:
     # Products at or below this stock level appear in the low-stock widget.
     low-stock-threshold: ${APP_LOW_STOCK_THRESHOLD:5}
 
-# Anthropic / Claude API settings for the AI module.  The API key is read from
-# ANTHROPIC_API_KEY by default; without it the AI endpoints return 503.
-anthropic:
-  api-key: ${ANTHROPIC_API_KEY:}
-  model: ${ANTHROPIC_MODEL:claude-opus-4-8}
+# OrderFlow Intelligence engine (proprietary Python/FastAPI service) that powers
+# the AI module. The backend proxies the admin AI endpoints to this engine.
+# If the engine is unreachable, the AI endpoints return 503.
+ai:
+  engine:
+    base-url: ${AI_ENGINE_URL:http://localhost:8000}
+    model: ${AI_ENGINE_MODEL:orderflow-intelligence-v1}
 
 # Stripe payment settings.  Read from the STRIPE_* environment variables.
 # Without a secret key, /api/payment/create-intent returns 503.

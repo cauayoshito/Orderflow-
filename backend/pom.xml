@@ -66,12 +66,10 @@
         </dependency>
 
         <!--
-          The AI module calls the Claude Messages API directly over HTTP using
-          Spring's built-in RestClient (see AiService).  We intentionally avoid
-          the official anthropic-java SDK here: its current release pulls in
-          Spring Boot 4 / Jackson 3 transitive dependencies that conflict with
-          this project's Spring Boot 3.2 / Jackson 2 baseline.  RestClient keeps
-          the classpath clean and the build reproducible.
+          The AI module proxies the OrderFlow Intelligence engine (a proprietary
+          Python/FastAPI service — no external AI API) over HTTP using Spring's
+          built-in RestClient (see AiService).  No extra SDK is needed on the
+          classpath, keeping the build reproducible.
         -->
 
         <!-- Stripe Java SDK for payments (PaymentIntent + webhook). -->
