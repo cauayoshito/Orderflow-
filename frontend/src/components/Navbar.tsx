@@ -45,8 +45,16 @@ export function Navbar() {
 
   const links = (
     <>
-      <Link href="/" className={linkClass("/")} onClick={() => setMenuOpen(false)}>
-        Catálogo
+      <Link href="/pricing" className={linkClass("/pricing")} onClick={() => setMenuOpen(false)}>
+        Planos
+      </Link>
+
+      <Link href="/demo" className={linkClass("/demo")} onClick={() => setMenuOpen(false)}>
+        Demonstração
+      </Link>
+
+      <Link href="/loja" className={linkClass("/loja")} onClick={() => setMenuOpen(false)}>
+        Loja
       </Link>
 
       <Link

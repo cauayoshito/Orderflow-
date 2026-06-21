@@ -109,7 +109,8 @@ docker compose up --build
 
 A IA (OrderFlow Intelligence) sobe junto, sem necessidade de chave ou API externa.
 
-- 🛍️ Loja: <http://localhost:3000>
+- 🚀 Landing comercial: <http://localhost:3000>
+- 🛍️ Loja demo: <http://localhost:3000/loja>
 - 📖 API (Swagger): <http://localhost:8080/swagger-ui.html>
 - 🧠 OrderFlow Intelligence: <http://localhost:8000/docs>
 

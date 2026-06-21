@@ -36,9 +36,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     </p>
                   </div>
                   <div className="flex flex-col gap-2 text-sm sm:items-end">
-                    <a href="/lp" className="hover:text-white">Por que OrderFlow</a>
+                    <a href="/" className="hover:text-white">Por que OrderFlow</a>
                     <a href="/pricing" className="hover:text-white">Planos e preços</a>
                     <a href="/demo" className="hover:text-white">Demonstração</a>
+                    <a href="/loja" className="hover:text-white">Loja demo</a>
                     <a href="/indique" className="hover:text-white">Indique e ganhe</a>
                     <a
                       href="https://github.com/cauayoshito/aceba"

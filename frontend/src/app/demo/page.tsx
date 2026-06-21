@@ -10,7 +10,7 @@ const STEPS = [
   {
     title: "1. Loja pronta para vender",
     desc: "Catálogo, carrinho e checkout com Stripe. Seu cliente compra em poucos cliques.",
-    href: "/",
+    href: "/loja",
     cta: "Abrir a loja demo",
   },
   {
@@ -42,7 +42,7 @@ export default function DemoPage() {
           Explore a demonstração interativa abaixo ou peça uma demonstração guiada com nossa equipe.
         </p>
         <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <a href="/" className="btn btn-primary px-8">Explorar a loja</a>
+          <a href="/loja" className="btn btn-primary px-8">Explorar a loja</a>
           <a href="/register?plan=pro" className="btn btn-secondary px-8">Criar conta grátis</a>
         </div>
       </section>

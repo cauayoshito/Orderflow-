@@ -20,7 +20,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(username, password);
-      const next = new URLSearchParams(window.location.search).get("next") || "/";
+      const next = new URLSearchParams(window.location.search).get("next") || "/loja";
       router.push(next);
     } catch (err: any) {
       setError(err.message || "Falha ao entrar.");

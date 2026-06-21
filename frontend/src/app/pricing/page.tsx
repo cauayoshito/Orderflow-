@@ -56,6 +56,17 @@ export default function PricingPage() {
         </div>
       </section>
 
+      <section className="rounded-2xl border border-emerald-200 bg-emerald-50 p-8 text-center">
+        <div className="text-3xl">🛡️</div>
+        <h2 className="mt-2 font-display text-2xl font-bold text-slate-900">Garantia de risco zero</h2>
+        <p className="mx-auto mt-2 max-w-xl text-sm text-emerald-800">
+          14 dias de teste no plano Pro, sem cartão de crédito. Cancele quando quiser, sem multa.
+        </p>
+        <a href="/register?plan=pro" className="btn btn-primary mt-5 inline-block px-8">
+          Começar teste grátis
+        </a>
+      </section>
+
       <section>
         <h2 className="text-center font-display text-2xl font-bold">Perguntas frequentes</h2>
         <div className="mx-auto mt-6 grid max-w-3xl grid-cols-1 gap-4">

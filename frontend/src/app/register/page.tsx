@@ -23,7 +23,7 @@ export default function RegisterPage() {
     try {
       await register(username, email, password);
       triggerWelcomeEmail(email, username); // best-effort, fire-and-forget
-      router.push("/");
+      router.push("/loja");
     } catch (err: any) {
       setError(err.message || "Falha ao criar conta.");
     } finally {

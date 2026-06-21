@@ -20,7 +20,7 @@ A IA (OrderFlow Intelligence) sobe junto com a stack — não precisa de chave n
 ## Fluxo do cliente
 
 1. **Criar conta** — acesse `/register`, informe usuário, e-mail e senha. Uma conta de cliente é criada e um perfil de cliente é provisionado automaticamente (necessário para comprar).
-2. **Navegar no catálogo** — a página inicial (`/`) lista os produtos com preço e estoque.
+2. **Navegar no catálogo** — a loja (`/loja`) lista os produtos com preço e estoque. A página inicial (`/`) é a landing comercial do OrderFlow.
 3. **Adicionar ao carrinho** — clique em "Adicionar ao carrinho". O carrinho fica salvo no navegador.
 4. **Carrinho** — em `/cart` ajuste quantidades ou remova itens.
 5. **Checkout** — em `/checkout` revise o resumo e clique em "Continuar para pagamento". O pedido é criado e a tela de pagamento (Stripe) aparece.

@@ -30,8 +30,11 @@ build limpo).
   tabelas.
 
 ### Frontend (Next.js)
-- **Landing page de conversão** (`/lp`) — hero + CTA teste grátis, prova social
-  (números), benefícios, depoimentos, planos, FAQ e captura de leads.
+- **Landing page de conversão** (home `/`) — hero + CTA teste grátis, prova
+  social (números), seção de objeções (com/sem OrderFlow), benefícios, "como
+  funciona", depoimentos, planos, garantia de risco zero, FAQ e captura de
+  leads. A loja demo foi movida para `/loja` e a navbar ganhou links de
+  marketing (Planos, Demonstração). `/lp` redireciona para a home.
 - **Página de planos e preços** (`/pricing`) — 3 planos + tabela comparativa + FAQ.
 - **Página de demonstração** (`/demo`) — tour pela loja, painel, IA e crescimento.
 - **Indique e ganhe** (`/indique`) — gera link de indicação e compartilha no WhatsApp.
@@ -64,9 +67,7 @@ mas têm alto impacto em conversão e retenção.
    sitemap.xml e metadata/OpenGraph dinâmicos.
 6. **SEO técnico** — `sitemap.ts`, `robots.ts`, metadata por página, dados
    estruturados (JSON-LD) para produtos e organização.
-7. **Página inicial = landing** — promover `/lp` a home institucional e mover a
-   loja demo para `/loja` (decisão de produto).
-8. **Eventos de conversão completos** — `Purchase`/`InitiateCheckout`/`ViewContent`
+7. **Eventos de conversão completos** — `Purchase`/`InitiateCheckout`/`ViewContent`
    no GA4 e Pixel, com valor e moeda, para otimização de campanhas.
 
 ---

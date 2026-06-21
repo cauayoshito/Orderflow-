@@ -20,7 +20,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     if (loading) return;
     if (!user) router.replace("/login?next=/admin");
-    else if (!isAdmin) router.replace("/");
+    else if (!isAdmin) router.replace("/loja");
   }, [loading, user, isAdmin, router]);
 
   if (loading || !user || !isAdmin) {

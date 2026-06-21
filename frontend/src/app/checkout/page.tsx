@@ -49,7 +49,7 @@ export default function CheckoutPage() {
     return (
       <div className="mx-auto max-w-2xl text-center">
         <h1 className="text-2xl font-bold">Nada para finalizar</h1>
-        <Link href="/" className="btn-primary mt-6">
+        <Link href="/loja" className="btn-primary mt-6">
           Ver catálogo
         </Link>
       </div>
