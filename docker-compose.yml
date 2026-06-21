@@ -43,6 +43,24 @@ services:
       STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
 
+  ai-engine:
+    # OrderFlow Intelligence — engine de IA proprietária (Python/FastAPI).
+    # Lê os mesmos dados do Postgres e expõe insights em http://localhost:8000.
+    # Não usa nenhuma API externa.
+    build: ./ai-engine
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      ORDERFLOW_DB_HOST: postgres
+      ORDERFLOW_DB_PORT: 5432
+      ORDERFLOW_DB_NAME: orderflow_db
+      ORDERFLOW_DB_USER: orderflow
+      ORDERFLOW_DB_PASSWORD: orderflow
+      ORDERFLOW_ALLOWED_ORIGINS: http://localhost:3000,http://localhost:8080
+
   frontend:
     build:
       context: ./frontend
