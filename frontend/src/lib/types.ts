@@ -72,6 +72,150 @@ export interface AiTextResponse {
   model: string;
 }
 
+// ----- OrderFlow Intelligence (structured analytics) -----
+
+export type InsightSeverity = "info" | "success" | "warning" | "critical";
+
+export interface Insight {
+  type: string;
+  severity: InsightSeverity;
+  title: string;
+  message: string;
+}
+
+export interface RecurringCustomer {
+  customer_id: number;
+  name: string;
+  orders: number;
+  total_spent: number;
+}
+
+export interface InsightsResponse {
+  insights: Insight[];
+  headline: string;
+  recurring_customers: RecurringCustomer[];
+  generated_at: string;
+  engine: string;
+}
+
+export interface TopProduct {
+  product_id: number;
+  name: string;
+  units_sold: number;
+  revenue: number;
+}
+
+export interface PeakHour {
+  hour: number;
+  orders: number;
+}
+
+export interface PeakWeekday {
+  weekday: string;
+  orders: number;
+}
+
+export interface SalesAnalysisResponse {
+  window_days: number;
+  revenue_current_window: number;
+  revenue_previous_window: number;
+  change_pct: number;
+  trend: "up" | "down" | "stable";
+  sales_drop_detected: boolean;
+  average_ticket: number;
+  top_products: TopProduct[];
+  peak_hours: PeakHour[];
+  peak_weekdays: PeakWeekday[];
+  narrative: string;
+  generated_at: string;
+  engine: string;
+}
+
+export interface StockAlertItem {
+  product_id: number;
+  name: string;
+  stock_quantity: number;
+  severity: "out_of_stock" | "critical" | "low";
+  daily_velocity: number;
+  days_of_cover: number | null;
+  suggested_restock: number;
+}
+
+export interface NoTurnoverItem {
+  product_id: number;
+  name: string;
+  stock_quantity: number;
+  days_without_sales: number | null;
+}
+
+export interface StockAlertsResponse {
+  low_stock_threshold: number;
+  no_turnover_days: number;
+  alerts: StockAlertItem[];
+  no_turnover: NoTurnoverItem[];
+  narrative: string;
+  generated_at: string;
+  engine: string;
+}
+
+// ----- Growth / marketing -----
+
+export interface LeadInput {
+  name: string;
+  email: string;
+  phone?: string;
+  source?: string;
+  planInterest?: string;
+  referredByCode?: string;
+}
+
+export interface LeadResponse {
+  id: number;
+  name: string;
+  email: string;
+  source: string | null;
+  planInterest: string | null;
+  referralCode: string;
+  referredByCode: string | null;
+  status: string;
+  createdAt: string;
+}
+
+export interface CouponValidation {
+  valid: boolean;
+  code: string;
+  discount: number;
+  finalAmount: number;
+  message: string;
+}
+
+export interface Coupon {
+  id: number;
+  code: string;
+  type: "PERCENT" | "FIXED";
+  value: number;
+  active: boolean;
+  minOrderAmount: number | null;
+  maxRedemptions: number | null;
+  timesRedeemed: number;
+  expiresAt: string | null;
+}
+
+export interface ReferrerCount {
+  code: string;
+  count: number;
+}
+
+export interface GrowthMetrics {
+  totalLeads: number;
+  convertedLeads: number;
+  conversionRate: number;
+  referredLeads: number;
+  leadsByStatus: Record<string, number>;
+  leadsBySource: Record<string, number>;
+  topReferrers: ReferrerCount[];
+}
+
 export interface AuthUser {
   id: number;
   username: string;

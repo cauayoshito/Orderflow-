@@ -1,191 +1,142 @@
 package com.orderflowapi.service;
 
 import com.orderflowapi.dto.ProductDescriptionRequest;
-import com.orderflowapi.entity.Order;
-import com.orderflowapi.entity.OrderStatus;
-import com.orderflowapi.entity.Product;
-import com.orderflowapi.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
- * AI features powered by the Claude Messages API: product-description
- * generation, weekly sales summaries and low-stock restock suggestions.
+ * AI features backed by the <b>OrderFlow Intelligence</b> engine — a proprietary
+ * Python/FastAPI service that analyses the store's own data (sales, stock,
+ * customers) using business rules and statistics, with <b>no external AI API</b>.
  *
- * Calls go over HTTP via Spring's {@link RestClient} (no extra SDK on the
- * classpath).  The API key is read from the {@code anthropic.api-key} property,
- * falling back to the {@code ANTHROPIC_API_KEY} environment variable.  When no
- * key is configured these endpoints respond with 503 Service Unavailable so the
- * rest of the app keeps working.
+ * This class is a thin <b>proxy</b>: it forwards requests to the engine over
+ * HTTP via Spring's {@link RestClient} and returns the generated text. The
+ * engine base URL is read from {@code ai.engine.base-url} (env
+ * {@code AI_ENGINE_URL}); when the engine is unreachable these endpoints respond
+ * with 503 Service Unavailable so the rest of the app keeps working.
  */
 @Service
 public class AiService {
 
-    private static final String MESSAGES_URL = "https://api.anthropic.com/v1/messages";
-    private static final String ANTHROPIC_VERSION = "2023-06-01";
-
-    private final OrderRepository orderRepository;
-    private final ProductService productService;
     private final RestClient restClient;
 
-    @Value("${anthropic.api-key:}")
-    private String configuredApiKey;
-
-    @Value("${anthropic.model:claude-opus-4-8}")
-    private String model;
-
-    @Value("${app.inventory.low-stock-threshold:5}")
-    private int lowStockThreshold;
-
-    public AiService(OrderRepository orderRepository, ProductService productService) {
-        this.orderRepository = orderRepository;
-        this.productService = productService;
-        this.restClient = RestClient.builder().baseUrl(MESSAGES_URL).build();
+    public AiService(@Value("${ai.engine.base-url:http://localhost:8000}") String engineBaseUrl) {
+        this.restClient = RestClient.builder().baseUrl(engineBaseUrl).build();
     }
 
     // ----- Public features -------------------------------------------------
 
+    /** Generate a marketing description for a product via the engine. */
     public String generateProductDescription(ProductDescriptionRequest request) {
-        StringBuilder facts = new StringBuilder("Nome do produto: ").append(request.getName());
-        if (StringUtils.hasText(request.getCategory())) {
-            facts.append("\nCategoria: ").append(request.getCategory());
-        }
-        if (StringUtils.hasText(request.getKeywords())) {
-            facts.append("\nPalavras-chave: ").append(request.getKeywords());
-        }
-        String system = "Você é um copywriter de e-commerce para pequenos negócios brasileiros. "
-                + "Escreva descrições de produto persuasivas, claras e honestas em português do Brasil.";
-        String user = "Escreva uma descrição de produto com 2 a 3 frases (máx. 60 palavras), "
-                + "destacando benefícios e um tom acolhedor. Responda apenas com o texto da descrição, "
-                + "sem títulos nem aspas.\n\n" + facts;
-        return complete(system, user, 400);
+        Map<String, Object> body = new HashMap<>();
+        body.put("name", request.getName());
+        body.put("category", request.getCategory());
+        body.put("keywords", request.getKeywords());
+
+        Map<String, Object> response = post("/product-description", body);
+        return requireText(response, "description");
     }
 
-    @Transactional(readOnly = true)
+    /** Plain-language analysis of recent sales (drop detection, top products). */
     public String summarizeWeeklySales() {
-        LocalDateTime since = LocalDateTime.now().minusDays(7);
-        List<Order> orders = orderRepository.findByOrderDateAfter(since);
-
-        long count = orders.size();
-        double revenue = orders.stream()
-                .filter(o -> o.getStatus() != OrderStatus.CANCELED)
-                .mapToDouble(OrderService::calculateTotal)
-                .sum();
-        long canceled = orders.stream().filter(o -> o.getStatus() == OrderStatus.CANCELED).count();
-
-        String data = String.format(
-                "Pedidos nos últimos 7 dias: %d%nReceita (sem cancelados): R$ %.2f%nPedidos cancelados: %d",
-                count, revenue, canceled);
-
-        String system = "Você é um analista de negócios que explica métricas de vendas de forma simples "
-                + "para o dono de um pequeno negócio. Responda em português do Brasil.";
-        String user = "Com base nos dados abaixo, escreva um resumo curto (3 a 5 frases) das vendas da semana, "
-                + "com um destaque positivo e um ponto de atenção quando fizer sentido.\n\n" + data;
-        return complete(system, user, 500);
+        Map<String, Object> response = get("/sales-analysis");
+        return requireText(response, "narrative");
     }
 
-    @Transactional(readOnly = true)
+    /** Concrete actions for low-stock and no-turnover products. */
     public String suggestLowStockActions() {
-        List<Product> lowStock = productService.getLowStockProducts(lowStockThreshold);
-        if (lowStock.isEmpty()) {
-            return "Nenhum produto está com estoque baixo no momento. Continue monitorando o painel.";
-        }
-        StringBuilder list = new StringBuilder();
-        for (Product p : lowStock) {
-            list.append(String.format("- %s: %d unidades em estoque (preço R$ %.2f)%n",
-                    p.getName(), p.getStockQuantity(), p.getPrice()));
-        }
-        String system = "Você é um consultor de operações para pequenos negócios. "
-                + "Responda em português do Brasil de forma objetiva e prática.";
-        String user = "Os produtos abaixo estão com estoque baixo. Sugira ações concretas (reposição, "
-                + "promoção, comunicação ao cliente) em uma lista curta com no máximo 5 itens.\n\n" + list;
-        return complete(system, user, 600);
+        Map<String, Object> response = get("/stock-alerts");
+        return requireText(response, "narrative");
+    }
+
+    // ----- Structured analytics (full engine payloads) ---------------------
+
+    /** Consolidated admin insights (sales + inventory + customers). */
+    public Map<String, Object> getInsights() {
+        return get("/insights");
+    }
+
+    /** Business KPIs: sales, orders, average ticket, low-stock count. */
+    public Map<String, Object> getDashboardSummary() {
+        return get("/dashboard-summary");
+    }
+
+    /** Low-stock alerts (with restock suggestions) and no-turnover products. */
+    public Map<String, Object> getStockAlerts() {
+        return get("/stock-alerts");
+    }
+
+    /** Sales analysis: ranking, average ticket, drop detection, peak hours. */
+    public Map<String, Object> getSalesAnalysis(int windowDays) {
+        return get("/sales-analysis?window_days=" + windowDays);
     }
 
     // ----- Internals -------------------------------------------------------
 
     @SuppressWarnings("unchecked")
-    private String complete(String system, String user, int maxTokens) {
-        String apiKey = resolveApiKey();
-
-        Map<String, Object> body = Map.of(
-                "model", model,
-                "max_tokens", maxTokens,
-                "system", system,
-                "messages", List.of(Map.of(
-                        "role", "user",
-                        "content", user
-                ))
-        );
-
-        Map<String, Object> response;
+    private Map<String, Object> get(String path) {
         try {
-            response = restClient.post()
-                    .uri(MESSAGES_URL)
-                    .header("x-api-key", apiKey)
-                    .header("anthropic-version", ANTHROPIC_VERSION)
+            return restClient.get()
+                    .uri(path)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .body(Map.class);
+        } catch (RestClientResponseException ex) {
+            throw upstreamError(ex);
+        } catch (RestClientException ex) {
+            throw unreachable();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> post(String path, Map<String, Object> body) {
+        try {
+            return restClient.post()
+                    .uri(path)
                     .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
                     .body(body)
                     .retrieve()
                     .body(Map.class);
         } catch (RestClientResponseException ex) {
-            HttpStatus status = ex.getStatusCode().value() == 401 || ex.getStatusCode().value() == 403
-                    ? HttpStatus.SERVICE_UNAVAILABLE
-                    : HttpStatus.BAD_GATEWAY;
-            throw new ResponseStatusException(status,
-                    "Claude API request failed (" + ex.getStatusCode() + ").");
+            throw upstreamError(ex);
+        } catch (RestClientException ex) {
+            throw unreachable();
         }
+    }
 
-        String text = extractText(response);
+    private String requireText(Map<String, Object> response, String key) {
+        Object value = response == null ? null : response.get(key);
+        String text = value == null ? null : value.toString().trim();
         if (!StringUtils.hasText(text)) {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
-                    "The AI service returned an empty response. Please try again.");
+                    "The OrderFlow Intelligence engine returned an empty response. Please try again.");
         }
-        return text.trim();
+        return text;
     }
 
-    /**
-     * Pull and concatenate the text from a Messages API response:
-     * {@code {"content": [{"type":"text","text":"..."}]}}.
-     */
-    @SuppressWarnings("unchecked")
-    private String extractText(Map<String, Object> response) {
-        if (response == null) {
-            return null;
-        }
-        Object content = response.get("content");
-        if (!(content instanceof List<?> blocks)) {
-            return null;
-        }
-        StringBuilder sb = new StringBuilder();
-        for (Object block : blocks) {
-            if (block instanceof Map<?, ?> map && "text".equals(map.get("type"))) {
-                Object text = map.get("text");
-                if (text != null) {
-                    sb.append(text);
-                }
-            }
-        }
-        return sb.toString();
+    private ResponseStatusException upstreamError(RestClientResponseException ex) {
+        // 422 (validation) bubbles up as a 400; everything else is a bad gateway.
+        HttpStatus status = ex.getStatusCode().value() == 422
+                ? HttpStatus.BAD_REQUEST
+                : HttpStatus.BAD_GATEWAY;
+        return new ResponseStatusException(status,
+                "OrderFlow Intelligence request failed (" + ex.getStatusCode() + ").");
     }
 
-    private String resolveApiKey() {
-        String key = StringUtils.hasText(configuredApiKey) ? configuredApiKey : System.getenv("ANTHROPIC_API_KEY");
-        if (!StringUtils.hasText(key)) {
-            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-                    "AI features are disabled: set the ANTHROPIC_API_KEY environment variable to enable them.");
-        }
-        return key;
+    private ResponseStatusException unreachable() {
+        return new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                "AI features are unavailable: the OrderFlow Intelligence engine could not be reached. "
+                        + "Check that the ai-engine service is running and AI_ENGINE_URL is correct.");
     }
 }

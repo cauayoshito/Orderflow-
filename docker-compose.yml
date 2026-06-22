@@ -3,7 +3,8 @@
 #   docker compose up --build
 #
 # Then open http://localhost:3000 (frontend) and http://localhost:8080/swagger-ui.html (API docs).
-# Set ANTHROPIC_API_KEY in your shell (or a .env file) to enable the AI features.
+# The AI features are powered by the bundled OrderFlow Intelligence service
+# (Python/FastAPI) — no external AI API or key required.
 
 services:
   postgres:
@@ -27,6 +28,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      ai-engine:
+        condition: service_started
     ports:
       - "8080:8080"
     environment:
@@ -35,13 +38,31 @@ services:
       SPRING_DATASOURCE_PASSWORD: orderflow
       JWT_SECRET: ${JWT_SECRET:-orderflow-commerce-cloud-dev-secret-change-me-please-0123456789}
       APP_CORS_ALLOWED_ORIGINS: http://localhost:3000
-      # Optional: enables the AI module. Without it, AI endpoints return 503.
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-opus-4-8}
+      # AI module: the backend proxies admin AI endpoints to the OrderFlow
+      # Intelligence engine. If unreachable, those endpoints return 503.
+      AI_ENGINE_URL: http://ai-engine:8000
       # Optional: enables Stripe payments. Without the secret key, create-intent returns 503.
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
       STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+
+  ai-engine:
+    # OrderFlow Intelligence — engine de IA proprietária (Python/FastAPI).
+    # Lê os mesmos dados do Postgres e expõe insights em http://localhost:8000.
+    # Não usa nenhuma API externa.
+    build: ./ai-engine
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      ORDERFLOW_DB_HOST: postgres
+      ORDERFLOW_DB_PORT: 5432
+      ORDERFLOW_DB_NAME: orderflow_db
+      ORDERFLOW_DB_USER: orderflow
+      ORDERFLOW_DB_PASSWORD: orderflow
+      ORDERFLOW_ALLOWED_ORIGINS: http://localhost:3000,http://localhost:8080
 
   frontend:
     build:

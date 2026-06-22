@@ -72,7 +72,7 @@ export default function PaymentConfirmationPage() {
           <Link href="/orders" className="btn-secondary">
             Meus pedidos
           </Link>
-          <Link href="/" className="btn-primary">
+          <Link href="/loja" className="btn-primary">
             Voltar ao catálogo
           </Link>
         </div>

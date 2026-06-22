@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { Navbar } from "@/components/Navbar";
+import { Analytics } from "@/components/Analytics";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const sora = Sora({ subsets: ["latin"], weight: ["600", "700"], variable: "--font-sora" });
@@ -17,6 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR" className={`${inter.variable} ${sora.variable}`}>
       <body className="font-sans">
+        <Analytics />
         <AuthProvider>
           <CartProvider>
             <Navbar />
@@ -29,11 +31,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                       OrderFlow Commerce Cloud
                     </p>
                     <p className="mt-2 text-sm">
-                      Commerce em tempo real, potencializado por IA — Spring Boot, Next.js e
-                      Claude API.
+                      Commerce em tempo real, potencializado por IA própria — Spring Boot,
+                      Next.js e OrderFlow Intelligence (Python).
                     </p>
                   </div>
                   <div className="flex flex-col gap-2 text-sm sm:items-end">
+                    <a href="/" className="hover:text-white">Por que OrderFlow</a>
+                    <a href="/pricing" className="hover:text-white">Planos e preços</a>
+                    <a href="/demo" className="hover:text-white">Demonstração</a>
+                    <a href="/loja" className="hover:text-white">Loja demo</a>
+                    <a href="/indique" className="hover:text-white">Indique e ganhe</a>
                     <a
                       href="https://github.com/cauayoshito/aceba"
                       target="_blank"
@@ -41,14 +48,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                       className="hover:text-white"
                     >
                       GitHub
-                    </a>
-                    <a
-                      href="http://localhost:8080/swagger-ui.html"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="hover:text-white"
-                    >
-                      Swagger Docs
                     </a>
                   </div>
                 </div>

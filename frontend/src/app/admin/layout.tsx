@@ -9,6 +9,7 @@ const TABS = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/products", label: "Produtos" },
   { href: "/admin/orders", label: "Pedidos" },
+  { href: "/admin/growth", label: "Crescimento" },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -19,7 +20,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     if (loading) return;
     if (!user) router.replace("/login?next=/admin");
-    else if (!isAdmin) router.replace("/");
+    else if (!isAdmin) router.replace("/loja");
   }, [loading, user, isAdmin, router]);
 
   if (loading || !user || !isAdmin) {
